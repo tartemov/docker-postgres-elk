@@ -1,0 +1,53 @@
+version: '3.5'
+
+services:
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./postgres/data/:/var/lib/postgresql/data:rw
+      - pglogs:/var/lib/postgresql/data/pg_logs:rw
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres-elk
+
+  filebeat:
+    build:
+      context: filebeat/
+    environment:
+      - strict.perms=false
+    volumes:
+      - ./filebeat/config/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
+      - pglogs:/var/log/postgresql/:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - postgres-elk
+    depends_on:
+      - postgres
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat-oss:7.1.0
+    volumes:
+      - ./metricbeat/config/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+    networks:
+      - postgres-elk
+    depends_on:
+      - postgres
+
+volumes:
+  pglogs:
+    driver: local
+
+networks:
+  postgres-elk:
+    driver: bridge
+    external:
+      name: elk

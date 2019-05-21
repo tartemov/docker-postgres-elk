@@ -1,0 +1,35 @@
+metricbeat.modules:
+  - module: docker
+    metricsets:
+      - "container"
+      - "cpu"
+      - "diskio"
+      - "event"
+      - "healthcheck"
+      - "info"
+      #- "image"
+      - "memory"
+      - "network"
+    hosts: ["unix:///var/run/docker.sock"]
+    period: 10s
+    enabled: true
+
+  - module: postgresql
+    hosts: ["postgres://postgres:5432?sslmode=disable"]
+    metricsets:
+      - database
+      - bgwriter
+      - activity
+      - statement
+    period: 10s
+    enabled: true
+    username: postgres
+    password: postgres
+
+setup.kibana:
+  host: "${KIBANA_HOST:kibana:5601}"
+
+output.elasticsearch:
+  hosts: '${ELASTICSEARCH_HOSTS:[elasticsearch:9200]}'
+  username: '${ELASTICSEARCH_USERNAME:}'
+  password: '${ELASTICSEARCH_PASSWORD:}'
