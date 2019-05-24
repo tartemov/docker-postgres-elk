@@ -27,5 +27,12 @@ $ cd ../docker-postgres-elk
 $ docker-compose up -d
 ```
 
+# PostgreSQL Configuration
+
+There are two configuration file:
+
+* postgres.docker.conf - basic configuration with minimum changes from default
+* postgres.docker.res.conf - configuration with changes to make filebeat and metricbeat fully work
+
 By default, the stack exposes the following ports:
 * 5432: PostgreSQL 

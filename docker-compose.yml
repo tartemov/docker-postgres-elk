@@ -7,8 +7,10 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
+      - ./postgres/postgresql.docker.conf:/etc/postgresql/postgresql.conf
       - ./postgres/data/:/var/lib/postgresql/data:rw
-      - pglogs:/var/lib/postgresql/data/pg_logs:rw
+      - pglogs:/var/log/postgresql/:rw
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     ports:
       - "5432:5432"
     networks:
