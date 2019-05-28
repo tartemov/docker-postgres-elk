@@ -8,16 +8,33 @@ filebeat.autodiscover:
     - type: docker
       hints.enabled: true
 
-filebeat.modules:
-  - module: postgresql
-    log:
-      enabled: true
-      var.paths: ['/var/log/postgresql/*.log']
+#filebeat.modules:
+#  - module: postgresql
+#    log:
+#      enabled: true
+#      var.paths: ['/var/log/postgresql/*.log']
+
+filebeat.inputs:
+  - type: log
+    paths:
+      - '/var/log/postgresql/*.log'
+    # Add multiline for parameters and multiline messages
+    multiline:
+      pattern: '(^([^0-9])|(DETAIL:  parameters:))'
+      match: after
+    # Add field to reuse "out of the box" postgresql dashboards in Kibana
+    processors:
+      - add_fields:
+          target: event
+          fields:
+            module: "postgresql"
 
 processors:
   - add_cloud_metadata: ~
 
 setup.kibana:
   host: "kibana:5601"
-output.elasticsearch:
-  hosts: '[elasticsearch]'
+#output.elasticsearch:
+#  hosts: '[elasticsearch]'
+output.logstash:
+  hosts: '[logstash]'
